@@ -32,13 +32,13 @@ namespace MiniBlog.Controllers
         {
             var addedArticle = await articleService.CreateArticle(article);
 
-            return CreatedAtAction(nameof(GetById), new { id = article.Id }, addedArticle);
+            return CreatedAtAction(nameof(GetByIdAsync), new { id = article.Id }, addedArticle);
         }
 
         [HttpGet("{id}")]
-        public Article? GetById(Guid id)
+        public async Task<Article?> GetByIdAsync(Guid id)
         {
-            return articleService.GetById(id);
+            return await articleService.GetByIdAsync(id);
         }
     }
 }
