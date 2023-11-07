@@ -1,8 +1,15 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MiniBlog.Repositories;
 using MiniBlog.Services;
 using MiniBlog.Stores;
@@ -25,14 +32,14 @@ namespace MiniBlog
             services.AddControllers();
             services.AddSwaggerGen();
 
+            services.AddSingleton<ArticleStore>(new ArticleStore());
+            services.AddSingleton<UserStore>(new UserStore());
             services.AddScoped<ArticleService>();
-            services.AddScoped<UserService>();
 
             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDB"));
             services.AddSingleton<IMongoClient>(mongoClient);
 
             services.AddScoped<IArticleRepository>(provider => new ArticleRepository(mongoClient));
-            services.AddScoped<IUserRepository>(provider => new UserRepository(mongoClient));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

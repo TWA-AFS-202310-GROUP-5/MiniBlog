@@ -38,7 +38,7 @@ namespace MiniBlog.Controllers
         {
             var addedArticle = await articleService.CreateArticle(article);
 
-            return Created(nameof(GetById), addedArticle);
+            return CreatedAtAction(nameof(GetById), new { id = article.Id }, addedArticle);
         }
     }
 }
