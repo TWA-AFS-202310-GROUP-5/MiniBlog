@@ -34,7 +34,7 @@ namespace MiniBlogTest.ControllerTest
                 new Article(null, "Happy new year", "Happy 2021 new year"),
                 new Article(null, "Happy Halloween", "Halloween is coming"),
             }));
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()), mock.Object);
+            var client = GetClient(null, new UserStore(new List<User>()), mock.Object);
             var response = await client.GetAsync("/article");
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
@@ -72,7 +72,7 @@ namespace MiniBlogTest.ControllerTest
                 new Article(userNameWhoWillAdd, articleTitle, articleContent),
             }));
 
-            var client = GetClient(null, new UserStore(new List<User>()), mock1.Object);
+            var client = GetClient(new ArticleStore(new List<Article>()), new UserStore(new List<User>()), mock1.Object);
             var httpContent = JsonConvert.SerializeObject(article);
             StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
             var createArticleResponse = await client.PostAsync("/article", content);
