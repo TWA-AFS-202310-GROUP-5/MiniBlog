@@ -24,6 +24,7 @@ public class ArticleService
 
     public async Task<Article> CreateArticle(Article article)
     {
+        this.userStore.Users.Add(new User(name: article.UserName));
         var temp = await articleRepository.CreateArticle(article);
         return temp;
     }

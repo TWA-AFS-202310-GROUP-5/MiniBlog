@@ -68,7 +68,7 @@ namespace MiniBlogTest.ControllerTest
 
             var httpContent = JsonConvert.SerializeObject(article);
             StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
-            var client = GetClient(null, new UserStore(new List<User>()), CreateMockWith2ArticlesAndCanCreate(article).Object);
+            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()), CreateMockWith2ArticlesAndCanCreate(article).Object);
             var createArticleResponse = await client.PostAsync("/article", content);
 
             // It fail, please help
