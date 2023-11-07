@@ -21,5 +21,18 @@ namespace MiniBlog.Stores
         }
 
         public List<User> Users { get; set; }
+
+        public User? CreateUser(string username)
+        {           
+            
+            if (Users.Find(_ => _.Name == username) != null)
+            {
+                return null;
+            }
+
+            User user = new User(username);
+            Users.Add(user);
+            return user;
+        }
     }
 }

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MiniBlog.Model;
+using MiniBlog.Repositories;
 using MiniBlog.Stores;
 
 namespace MiniBlog.Controllers
@@ -32,7 +34,7 @@ namespace MiniBlog.Controllers
         }
 
         [HttpGet]
-        public List<User> GetAll()
+        public async Task<List<User>> GetAll()
         {
             return userStore.Users;
         }
