@@ -14,26 +14,23 @@ namespace MiniBlog.Controllers
     public class UserController : ControllerBase
     {
         private readonly ArticleService articleService = null!;
-        private readonly UserStore userStore = null!;
+        private readonly UserService userService = null!;
 
-        public UserController(ArticleService articleService, UserStore userStore)
+        public UserController(ArticleService articleService, UserService userService)
         {
             this.articleService = articleService;
-            this.userStore = userStore;
+            this.userService = userService;
         }
 
         [HttpPost]
-        public IActionResult Register(User user)
+        public async Task<IActionResult> RegisterAsync(User user)
         {
-            if (this.userStore == null)
+            if (this.userService == null)
             {
                 return StatusCode(500);
             }
 
-            if (!userStore.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
-            {
-                userStore.Users.Add(user);
-            }
+            _ = await userService.CreateUser(user);
 
             return CreatedAtAction(nameof(GetByName), new { name = user.Name }, GetByName(user.Name));
         }

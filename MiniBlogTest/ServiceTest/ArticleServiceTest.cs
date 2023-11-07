@@ -20,8 +20,7 @@ public class ArticleServiceTest
         // given
         var newArticle = new Article("Jerry", "Let's code", "c#");
         var userStore = new UserStore();
-        var mock = new Mock<IArticleRepository>();
-        mock.Setup(repository => repository.CreateArticle(newArticle)).Returns(Task.FromResult(newArticle));
+        var mock = MockGenerator.MockArticleRepositoryCreateArticle(newArticle);
         var articleService = new ArticleService(mock.Object, userStore);
 
         // when
