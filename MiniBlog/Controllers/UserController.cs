@@ -13,14 +13,10 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly ArticleStore articleStore = null!;
-        private readonly UserStore userStore = null!;
         private readonly UserService userService = null!;
 
-        public UserController(ArticleStore articleStore, UserStore userStore, UserService userService)
+        public UserController(UserService userService)
         {
-            this.articleStore = articleStore;
-            this.userStore = userStore;
             this.userService = userService;
         }
 
@@ -63,7 +59,6 @@ namespace MiniBlog.Controllers
             if (exit)
             {
                 userService.DeleteOne(name);
-                articleStore.Articles.RemoveAll(a => a.UserName == foundUser.Name);
             }
 
             return foundUser;

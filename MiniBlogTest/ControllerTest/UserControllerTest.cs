@@ -100,13 +100,18 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_update_user_email_success_()
         {
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()));
+            var mockUserRepository = new Mock<IUserRepository>();
 
             var userName = "Tom";
             var originalEmail = "a@b.com";
             var updatedEmail = "tom@b.com";
             var originalUser = new User(userName, originalEmail);
+            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()), null, mockUserRepository.Object);
 
+            mockUserRepository.Setup(repository => repository.GetUsersAsync())
+                .Returns(Task.FromResult(new List<User>()));
+            mockUserRepository.Setup(repository => repository.CreateUserAsync(originalUser))
+                .Returns(Task.FromResult(originalUser));
             var newUser = new User(userName, updatedEmail);
             StringContent registerUserContent = new StringContent(JsonConvert.SerializeObject(originalUser), Encoding.UTF8, MediaTypeNames.Application.Json);
             var registerResponse = await client.PostAsync("/user", registerUserContent);
@@ -114,6 +119,9 @@ namespace MiniBlogTest.ControllerTest
             StringContent updateUserContent = new StringContent(JsonConvert.SerializeObject(newUser), Encoding.UTF8, MediaTypeNames.Application.Json);
             await client.PutAsync("/user", updateUserContent);
 
+            mockUserRepository.Setup(repository => repository.UpdateOne(newUser));
+            mockUserRepository.Setup(repository => repository.GetUsersAsync())
+                .Returns(Task.FromResult(new List<User>{newUser}));
             var response = await client.GetAsync("/user");
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
@@ -126,34 +134,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_delete_user_and_related_article_success()
         {
-
-            /*
-                        var mockArticleRepository = new Mock<IArticleRepository>();
-                        var mockUserRepository = new Mock<IUserRepository>();
-                        string userNameWhoWillAdd = "Tom";
-                        string articleContent = "What a good day today!";
-                        string articleTitle = "Good day";
-                        Article article = new Article(userNameWhoWillAdd, articleTitle, articleContent);
-                        mockArticleRepository.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
-                        {
-                            article
-                        }));
-                        User user = new User("Tom");
-                        mockArticleRepository.Setup(repository => repository.CreateArticle(article)).Returns(Task.FromResult(article));
-
-                        mockUserRepository.Setup(repository => repository.GetUsersAsync())
-                            .Returns(Task.FromResult(new List<User> { user }));
-                        mockUserRepository.Setup(repository => repository.CreateUserAsync(user))
-                            .Returns(Task.FromResult(user));
-
-                        var client = GetClient(new ArticleStore(new List<Article>
-                        {
-                            new Article(null, "Happy new year", "Happy 2021 new year"),
-                            new Article(null, "Happy Halloween", "Halloween is coming"),
-                        }), new UserStore(new List<User>()), mockArticleRepository.Object, mockUserRepository.Object);*/
-
             // given
-
             var mockArticleRepository = new Mock<IArticleRepository>();
             var mockUserRepository = new Mock<IUserRepository>();
             string userNameWhoWillAdd = "Tom";
