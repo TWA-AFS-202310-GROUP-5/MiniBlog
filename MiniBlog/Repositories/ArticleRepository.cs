@@ -11,7 +11,7 @@ namespace MiniBlog.Repositories
     {
         private readonly IMongoCollection<Article> articleCollection;
 
-        public ArticleRepository(IMongoClient mongoClient)
+        public ArticleRepository(IMongoClient mongoClient) 
         {
             var mongoDatabase = mongoClient.GetDatabase("MiniBlog");
 

@@ -82,13 +82,12 @@ namespace MiniBlogTest.ControllerTest
             Assert.Equal(articleContent, articles[2].Content);
             Assert.Equal(userNameWhoWillAdd, articles[2].UserName);
 
-            var userResponse = await client.GetAsync("/user");
-            var usersJson = await userResponse.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<List<User>>(usersJson);
+            var userResponse = await client.GetAsync("/user/" + articles[2].UserName);
+            var userJson = await userResponse.Content.ReadAsStringAsync();
+            var user = JsonConvert.DeserializeObject<User>(userJson);
 
-            Assert.True(users.Count == 1);
-            Assert.Equal(userNameWhoWillAdd, users[0].Name);
-            Assert.Equal("anonymous@unknow.com", users[0].Email);
+            Assert.Equal(userNameWhoWillAdd, user.Name);
+            Assert.Equal("anonymous@unknow.com", user.Email);
         }
 
         private Mock<IArticleRepository> CreateMockWith2ArticlesAndCanCreate(Article article)

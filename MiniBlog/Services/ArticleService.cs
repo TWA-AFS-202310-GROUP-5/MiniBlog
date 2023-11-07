@@ -1,3 +1,6 @@
+﻿using MiniBlog.Model;
+using MiniBlog.Repositories;
+using MiniBlog.Stores;
 using System;
 using System.Collections.Generic;
 using System.Linq;

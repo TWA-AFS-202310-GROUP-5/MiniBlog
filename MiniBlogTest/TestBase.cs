@@ -6,6 +6,8 @@ using MiniBlog.Repositories;
 using MiniBlog.Services;
 using MiniBlog.Stores;
 using Xunit;
+using Microsoft.Extensions.DependencyInjection;
+using MiniBlog.Services;
 
 namespace MiniBlogTest
 {
