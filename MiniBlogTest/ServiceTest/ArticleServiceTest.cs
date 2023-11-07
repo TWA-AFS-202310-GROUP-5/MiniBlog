@@ -15,25 +15,30 @@ public class ArticleServiceTest
     public void Should_create_article_when_invoke_CreateArticle_given_input_article()
     {
         // given
+
         var newArticle = new Article("Jerry", "Let's code", "c#");
-        var articleStore = new ArticleStore();
-        var articleCountBeforeAddNewOne = articleStore.Articles.Count;
+        var articleService = new ArticleService(CreateMockWith2ArticlesAndCanCreate(newArticle).Object);
+        var articleCountBeforeAddNewOne = articleService.GetAll().Result.Count;
         var userStore = new UserStore();
-        var articleService = new ArticleService(articleStore, userStore);
 
         // when
-        var addedArticle = articleService.CreateArticle(newArticle);
+        var addedArticle = articleService.CreateArticle(newArticle).Result;
 
         // then
-        Assert.Equal(articleCountBeforeAddNewOne + 1, articleStore.Articles.Count);
         Assert.Equal(newArticle.Title, addedArticle.Title);
         Assert.Equal(newArticle.Content, addedArticle.Content);
         Assert.Equal(newArticle.UserName, addedArticle.UserName);
     }
 
-    private Mock<IArticleRepository> CreateMockWith2Articles()
+    private Mock<IArticleRepository> CreateMockWith2ArticlesAndCanCreate(Article article)
     {
         var mock = new Mock<IArticleRepository>();
+        mock.Setup(repository => repository.CreateArticle(article)).Returns(Task.FromResult(new Article
+            {
+                UserName = article.UserName,
+                Title = article.Title,
+                Content = article.Content,
+            }));
         mock.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
             {
                 new Article(null, "Happy new year", "Happy 2021 new year"),

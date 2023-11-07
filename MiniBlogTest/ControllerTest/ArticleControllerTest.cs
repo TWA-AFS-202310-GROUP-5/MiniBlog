@@ -27,7 +27,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_get_all_Article()
         {
-            var client = GetClient(CreateMockWith2Articles().Object, new UserStore(new List<User>()));
+            var client = GetClient(CreateMockWithGet2Articles().Object, new UserStore(new List<User>()));
             var response = await client.GetAsync("/article");
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
@@ -53,7 +53,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_and_register_user_correct()
         {
-            var client = GetClient(CreateMockWith2Articles().Object, new UserStore(new List<User>()));
+            var client = GetClient(CreateMockWithGet2Articles().Object, new UserStore(new List<User>()));
 
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
@@ -84,7 +84,7 @@ namespace MiniBlogTest.ControllerTest
             Assert.Equal("anonymous@unknow.com", users[0].Email);
         }
 
-        private Mock<IArticleRepository> CreateMockWith2Articles()
+        private Mock<IArticleRepository> CreateMockWithGet2Articles()
         {
             var mock = new Mock<IArticleRepository>();
             mock.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
