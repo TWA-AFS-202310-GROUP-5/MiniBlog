@@ -37,7 +37,7 @@ namespace MiniBlog.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<Article?> GetByIdAsync(Guid id)
+        public async Task<Article?> GetByIdAsync(string id)
         {
             return await articleService.GetByIdAsync(id);
         }

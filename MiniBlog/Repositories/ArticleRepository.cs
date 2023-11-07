@@ -23,6 +23,7 @@ namespace MiniBlog.Repositories
 
         public async Task<Article> CreateArticle(Article article)
         {
+            article.Id = null;
             await articleCollection.InsertOneAsync(article);
             return await articleCollection.Find(a => a.Title == article.Title).FirstAsync();
         }

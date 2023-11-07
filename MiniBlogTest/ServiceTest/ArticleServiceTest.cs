@@ -1,6 +1,8 @@
 ﻿using MiniBlog.Model;
+using MiniBlog.Repositories;
 using MiniBlog.Services;
 using MiniBlog.Stores;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,23 +14,39 @@ namespace MiniBlogTest.ServiceTest;
 
 public class ArticleServiceTest
 {
-    // [Fact]
-    // public void Should_create_article_when_invoke_CreateArticle_given_input_article()
-    // {
-    //     // given
-    //     var newArticle = new Article("Jerry", "Let's code", "c#");
-    //     var articleStore = new ArticleStore();
-    //     var articleCountBeforeAddNewOne = articleStore.Articles.Count;
-    //     var userStore = new UserStore();
-    //     var articleService = new ArticleService(articleStore, userStore);
+    [Fact]
+    public void Should_create_article_and_user_when_invoke_CreateArticle_given_article()
+    {
+        // given
+        var newArticle = new Article("Jerry", "Let's code", "c#");
+        var userStore = new UserStore();
+        var mock = new Mock<IArticleRepository>();
+        mock.Setup(repository => repository.CreateArticle(newArticle)).Returns(Task.FromResult(newArticle));
+        var articleService = new ArticleService(mock.Object, userStore);
 
-    //     // when
-    //     var addedArticle = articleService.CreateArticle(newArticle);
+        // when
+        var addedArticle = articleService.CreateArticle(newArticle);
 
-    //     // then
-    //     Assert.Equal(articleCountBeforeAddNewOne + 1, articleStore.Articles.Count);
-    //     Assert.Equal(newArticle.Title, addedArticle.Title);
-    //     Assert.Equal(newArticle.Content, addedArticle.Content);
-    //     Assert.Equal(newArticle.UserName, addedArticle.UserName);
-    // }
+        // then
+        mock.Verify(repo => repo.CreateArticle(newArticle), Times.Once());
+        Assert.Equal(3, userStore.Users.Count);
+    }
+
+    [Fact]
+    public void Should_create_only_article_when_invoke_CreateArticle_given_article_with_exist_author()
+    {
+        // given
+        var newArticle = new Article("Andrew", "Let's code", "c#");
+        var userStore = new UserStore();
+        var mock = new Mock<IArticleRepository>();
+        mock.Setup(repository => repository.CreateArticle(newArticle)).Returns(Task.FromResult(newArticle));
+        var articleService = new ArticleService(mock.Object, userStore);
+
+        // when
+        var addedArticle = articleService.CreateArticle(newArticle);
+
+        // then
+        mock.Verify(repo => repo.CreateArticle(newArticle), Times.Once());
+        Assert.Equal(2, userStore.Users.Count);
+    }
 }

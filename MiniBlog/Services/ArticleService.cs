@@ -24,9 +24,13 @@ public class ArticleService
 
     public async Task<Article> CreateArticle(Article article)
     {
-        this.userStore.Users.Add(new User(name: article.UserName));
-        var temp = await articleRepository.CreateArticle(article);
-        return temp;
+        if (!userStore.Users.Exists(user => user.Name == article.UserName))
+        {
+            this.userStore.Users.Add(new User(name: article.UserName));
+        }
+        
+        var createdArticle = await articleRepository.CreateArticle(article);
+        return createdArticle;
     }
 
     public async Task<List<Article>> GetAll()
@@ -34,7 +38,7 @@ public class ArticleService
         return await articleRepository.GetArticles();
     }
 
-    public async Task<Article?> GetByIdAsync(Guid id)
+    public async Task<Article?> GetByIdAsync(string id)
     {
         return await articleRepository.GetArticleById(id.ToString());
     }
