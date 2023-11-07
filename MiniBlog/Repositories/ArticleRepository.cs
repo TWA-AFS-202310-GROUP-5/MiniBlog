@@ -1,9 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using MiniBlog.Model;
 using MongoDB.Driver;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MiniBlog.Repositories
 {
@@ -20,6 +19,11 @@ namespace MiniBlog.Repositories
 
         public async Task<List<Article>> GetArticles() =>
             await articleCollection.Find(_ => true).ToListAsync();
+
+        public async Task<Article> GetById(string id)
+        {
+            return await articleCollection.Find(a => a.Id == id).FirstAsync();
+        }
 
         public async Task<Article> CreateArticle(Article article)
         {
