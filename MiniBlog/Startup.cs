@@ -26,6 +26,7 @@ namespace MiniBlog
             services.AddSwaggerGen();
 
             services.AddScoped<ArticleService>();
+            services.AddScoped<UserService>();
 
             var mongoClient = new MongoClient(Configuration.GetConnectionString("MongoDB"));
             services.AddSingleton<IMongoClient>(mongoClient);
