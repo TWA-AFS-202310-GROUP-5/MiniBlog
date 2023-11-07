@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using MiniBlog;
 using MiniBlog.Model;
+using MiniBlog.Repositories;
 using MiniBlog.Stores;
+using Moq;
 using Newtonsoft.Json;
 using Xunit;
 using Xunit.Sdk;
@@ -114,18 +116,14 @@ namespace MiniBlogTest.ControllerTest
         {
             // given
             var userName = "Tom";
-            var client = GetClient(
-                new ArticleStore(
-                    new List<Article>
-                    {
-                        new Article(userName, string.Empty, string.Empty),
-                        new Article(userName, string.Empty, string.Empty),
-                    }),
-                new UserStore(
-                    new List<User>
-                    {
-                        new User(userName, string.Empty),
-                    }));
+            var mockArticleRepo = new Mock<IArticleRepository>();
+            mockArticleRepo.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
+            {
+                new Article(null, "Happy new year", "Happy 2021 new year"),
+                new Article(null, "Happy Halloween", "Halloween is coming"),
+            }));
+
+            var client = GetClient(new ArticleStore(), new UserStore(), mockArticleRepo.Object);
 
             var articlesResponse = await client.GetAsync("/article");
 
@@ -138,7 +136,7 @@ namespace MiniBlogTest.ControllerTest
             userResponse.EnsureSuccessStatusCode();
             var users = JsonConvert.DeserializeObject<List<User>>(
                 await userResponse.Content.ReadAsStringAsync());
-            Assert.True(users.Count == 1);
+            Assert.True(users.Count == 2);
 
             // when
             await client.DeleteAsync($"/user?name={userName}");

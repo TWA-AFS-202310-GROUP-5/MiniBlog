@@ -28,11 +28,11 @@ namespace MiniBlog.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Article article)
+        public async Task<IActionResult> Create([FromBody]Article article)
         {
             var addedArticle = await articleService.CreateArticle(article);
 
-            return CreatedAtAction(nameof(GetByIdAsync), new { id = article.Id }, addedArticle);
+            return CreatedAtAction(nameof(Create), new { id = article.Id }, addedArticle);
         }
 
         [HttpGet("{id}")]
