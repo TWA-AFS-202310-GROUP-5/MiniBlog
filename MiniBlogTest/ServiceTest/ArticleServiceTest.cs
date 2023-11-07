@@ -57,6 +57,24 @@ public class ArticleServiceTest
         Assert.Equal(articles[1].UserName, gotArticles[1].UserName);
     }
 
+    [Fact]
+    public void Should_get_article_when_invoke_GetById_given_id()
+    {
+        // given
+        var userStore = new UserStore();
+        var id = "996";
+        var articleService = new ArticleService(userStore, CreateMockWithGetById(id).Object);
+
+        // when
+        var gotArticle = articleService.GetById(id).Result;
+
+        // then
+        Assert.Equal(id, gotArticle.Id);
+        Assert.Equal("This", gotArticle.UserName);
+        Assert.Equal("Is", gotArticle.Title);
+        Assert.Equal("So stupid", gotArticle.Content);
+    }
+
     private Mock<IArticleRepository> CreateMockWith2ArticlesAndCanCreate(Article article)
     {
         var mock = new Mock<IArticleRepository>();
@@ -72,6 +90,19 @@ public class ArticleServiceTest
                 new Article(null, "Happy Halloween", "Halloween is coming"),
                 article,
             }));
+        return mock;
+    }
+
+    private Mock<IArticleRepository> CreateMockWithGetById(string id)
+    {
+        var mock = new Mock<IArticleRepository>();
+        mock.Setup(repository => repository.GetById(id)).Returns(Task.FromResult(new Article
+        {
+            Id = "996",
+            UserName = "This",
+            Title = "Is",
+            Content = "So stupid",
+        }));
         return mock;
     }
 

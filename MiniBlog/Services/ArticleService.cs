@@ -32,7 +32,6 @@ public class ArticleService
 
     public async Task<Article?> GetById(string id)
     {
-        //articleStore.Articles.FirstOrDefault(article => article.Id == id.ToString())
         return await articleRepository.GetById(id);
     }
 }
