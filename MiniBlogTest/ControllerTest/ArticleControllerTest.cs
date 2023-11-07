@@ -87,13 +87,13 @@ namespace MiniBlogTest.ControllerTest
             Assert.Equal(articleContent, articles[0].Content);
             Assert.Equal(userNameWhoWillAdd, articles[0].UserName);
 
-            //var userResponse = await client.GetAsync("/user");
-            //var usersJson = await userResponse.Content.ReadAsStringAsync();
-            //var users = JsonConvert.DeserializeObject<List<User>>(usersJson);
+            var userResponse = await client.GetAsync("/user");
+            var usersJson = await userResponse.Content.ReadAsStringAsync();
+            var users = JsonConvert.DeserializeObject<List<User>>(usersJson);
 
-            //Assert.True(users.Count == 1);
-            //Assert.Equal(userNameWhoWillAdd, users[0].Name);
-            //Assert.Equal("anonymous@unknow.com", users[0].Email);
+            Assert.True(users.Count == 1);
+            Assert.Equal(userNameWhoWillAdd, users[0].Name);
+            Assert.Equal("anonymous@unknow.com", users[0].Email);
         }
     }
 }
