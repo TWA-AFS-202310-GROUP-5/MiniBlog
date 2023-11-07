@@ -23,18 +23,6 @@ public class ArticleService
 
     public async Task<Article?> CreateArticle(Article article)
     {
-        // if (article.UserName != null)
-        // {
-        //     if (!userStore.Users.Exists(_ => article.UserName == _.Name))
-        //     {
-        //         userStore.Users.Add(new User(article.UserName));
-        //     }
-
-        //     articleStore.Articles.Add(article);
-        // }
-
-        // return articleStore.Articles.Find(articleExisted => articleExisted.Title == article.Title);
-
         return await this.articleRepository.CreateArticle(article);
     }
 
