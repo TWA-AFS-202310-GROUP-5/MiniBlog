@@ -2,53 +2,54 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MiniBlog.Model;
-using MiniBlog.Services;
 using MiniBlog.Stores;
 
 namespace MiniBlog.Controllers
 {
     [ApiController]
-    [Route("/article")]
+    [Route("[controller]")]
     public class ArticleController : ControllerBase
     {
         private readonly ArticleStore articleStore = null!;
         private readonly UserStore userStore = null!;
-        private ArticleService articleService = null!;
 
-        public ArticleController(ArticleStore articleStore, UserStore userStore, ArticleService articleService)
+        public ArticleController(ArticleStore articleStore, UserStore userStore)
         {
             this.articleStore = articleStore;
             this.userStore = userStore;
-            this.articleService = articleService;
         }
 
         [HttpGet]
-        public async Task<List<Article>> ListAsync()
+        public List<Article> List()
         {
-            return await articleService.GetAll();
+            Console.WriteLine(articleStore.Articles);
+            return articleStore.Articles;
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(Article article)
+        public IActionResult Create(Article article)
         {
-            if (this.articleStore == null)
+            if (article.UserName != null)
             {
-                return StatusCode(500);
+                if (!userStore.Users.Exists(_ => article.UserName == _.Name))
+                {
+                    userStore.Users.Add(new User(article.UserName));
+                }
+
+                articleStore.Articles.Add(article);
             }
 
-            Article createdAriticle = await articleService.CreateNewArticleAsync(article);
-
-            return CreatedAtAction(nameof(GetById), new { id = createdAriticle.Id }, createdAriticle);
+            return CreatedAtAction(nameof(GetById), new { id = article.Id }, article);
         }
 
         [HttpGet("{id}")]
-        public Article GetById(string id)
+        public Article GetById(Guid id)
         {
-            return articleService.FindArticleById(id);
+            var foundArticle = articleStore.Articles.FirstOrDefault(article => article.Id == id);
+            return foundArticle;
         }
     }
 }

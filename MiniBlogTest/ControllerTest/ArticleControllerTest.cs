@@ -24,7 +24,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_get_all_Article()
         {
-            var client = GetClient(new ArticleStore(), new UserStore());
+            var client = GetClient();
             var response = await client.GetAsync("/article");
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
@@ -35,7 +35,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_fail_when_ArticleStore_unavailable()
         {
-            var client = GetClient(null, new UserStore());
+            var client = GetClient();
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -50,7 +50,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_and_register_user_correct()
         {
-            var client = GetClient(new ArticleStore(), new UserStore());
+            var client = GetClient();
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -71,12 +71,13 @@ namespace MiniBlogTest.ControllerTest
             Assert.Equal(articleContent, articles[2].Content);
             Assert.Equal(userNameWhoWillAdd, articles[2].UserName);
 
-            var userResponse = await client.GetAsync("/user/" + articles[2].UserName);
-            var userJson = await userResponse.Content.ReadAsStringAsync();
-            var user = JsonConvert.DeserializeObject<User>(userJson);
+            var userResponse = await client.GetAsync("/user");
+            var usersJson = await userResponse.Content.ReadAsStringAsync();
+            var users = JsonConvert.DeserializeObject<List<User>>(usersJson);
 
-            Assert.Equal(userNameWhoWillAdd, user.Name);
-            Assert.Equal("anonymous@unknow.com", user.Email);
+            Assert.Equal(1, users.Count);
+            Assert.Equal(userNameWhoWillAdd, users[0].Name);
+            Assert.Equal("anonymous@unknow.com", users[0].Email);
         }
     }
 }
