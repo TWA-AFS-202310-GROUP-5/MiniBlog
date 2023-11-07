@@ -23,6 +23,11 @@ namespace MiniBlog.Controllers
         [HttpPost]
         public IActionResult Register(User user)
         {
+            if (this.userStore == null)
+            {
+                return StatusCode(500);
+            }
+
             if (!userStore.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
             {
                 userStore.Users.Add(user);
