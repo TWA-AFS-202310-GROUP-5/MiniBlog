@@ -5,14 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MiniBlog.Model;
+using MiniBlog.Repositories;
+using MiniBlog.Stores;
 
-namespace MiniBlog.Services
+namespace MiniBlog.Services;
+
+public class ArticleService
 {
-    public class ArticleService
-    {
-        private readonly ArticleStore articleStore = null!;
-        private readonly UserStore userStore = null!;
-        private readonly ArticleRepository articleRepository = null!;
+    private readonly ArticleStore articleStore = null!;
+    private readonly UserStore userStore = null!;
+    private readonly ArticleRepository articleRepository = null!;
 
         public ArticleService(ArticleStore articleStore, UserStore userStore)
         {
@@ -20,37 +23,37 @@ namespace MiniBlog.Services
             this.userStore = userStore;
         }
 
-        public ArticleService(ArticleStore articleStore, UserStore userStore, ArticleRepository articleRepository)
-        {
-            this.articleStore = articleStore;
-            this.userStore = userStore;
-            this.articleRepository = articleRepository;
-        }
+    public ArticleService(ArticleStore articleStore, UserStore userStore, ArticleRepository articleRepository)
+    {
+        this.articleStore = articleStore;
+        this.userStore = userStore;
+        this.articleRepository = articleRepository;
+    }
 
-        public async Task<Article> CreateNewArticleAsync(Article article)
-        {
-            if (article.UserName != null)
-            {
-                if (!userStore.Users.Exists(_ => article.UserName == _.Name))
-                {
-                    userStore.Users.Add(new User(article.UserName));
-                }
+    public async Task<Article?> CreateArticle(Article article)
+    {
+        // if (article.UserName != null)
+        // {
+        //     if (!userStore.Users.Exists(_ => article.UserName == _.Name))
+        //     {
+        //         userStore.Users.Add(new User(article.UserName));
+        //     }
 
-                var createdArticle = await this.articleRepository.CreateArticle(article);
-                return createdArticle;
-            }
+        //     articleStore.Articles.Add(article);
+        // }
 
-            return null;
-        }
+        // return articleStore.Articles.Find(articleExisted => articleExisted.Title == article.Title);
 
-        public Article FindArticleById(string id)
-        {
-            return articleStore.Articles.FirstOrDefault(article => article.Id == id);
-        }
+        return await this.articleRepository.CreateArticle(article);
+    }
 
-        public async Task<List<Article>> GetAll()
-        {
-            return await articleRepository.GetAll();
-        }
+    public async Task<List<Article>> GetAll()
+    {
+        return await articleRepository.GetArticles();
+    }
+
+    public Article? GetById(Guid id)
+    {
+        return articleStore.Articles.FirstOrDefault(article => article.Id == id.ToString());
     }
 }

@@ -15,40 +15,31 @@ namespace MiniBlog.Controllers
     [Route("/article")]
     public class ArticleController : ControllerBase
     {
-        private readonly ArticleStore articleStore = null!;
-        private readonly UserStore userStore = null!;
-        private ArticleService articleService = null!;
+        private readonly ArticleService articleService = null!;
 
-        public ArticleController(ArticleStore articleStore, UserStore userStore, ArticleService articleService)
+        public ArticleController(ArticleService articleService)
         {
-            this.articleStore = articleStore;
-            this.userStore = userStore;
             this.articleService = articleService;
         }
 
         [HttpGet]
-        public async Task<List<Article>> ListAsync()
+        public async Task<List<Article>> List()
         {
             return await articleService.GetAll();
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAsync(Article article)
+        public async Task<IActionResult> Create(Article article)
         {
-            if (this.articleStore == null)
-            {
-                return StatusCode(500);
-            }
+            var addedArticle = await articleService.CreateArticle(article);
 
-            Article createdAriticle = await articleService.CreateNewArticleAsync(article);
-
-            return CreatedAtAction(nameof(GetById), new { id = createdAriticle.Id }, createdAriticle);
+            return CreatedAtAction(nameof(GetById), new { id = article.Id }, addedArticle);
         }
 
         [HttpGet("{id}")]
-        public Article GetById(string id)
+        public Article? GetById(Guid id)
         {
-            return articleService.FindArticleById(id);
+            return articleService.GetById(id);
         }
     }
 }
