@@ -27,5 +27,20 @@ namespace MiniBlog.Model
         public string UserName { get; set; } = null!;
         public string Title { get; set; } = null!;
         public string Content { get; set; } = null!;
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            Article other = (Article)obj;
+
+            return Id == other.Id
+                   && UserName == other.UserName
+                   && Title == other.Title
+                   && Content == other.Content;
+        }
     }
 }
