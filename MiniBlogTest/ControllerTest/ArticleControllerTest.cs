@@ -27,13 +27,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_get_all_Article()
         {
-            var mock = new Mock<IArticleRepository>();
-            mock.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
-            {
-                new Article(null, "Happy new year", "Happy 2021 new year"),
-                new Article(null, "Happy Halloween", "Halloween is coming"),
-            }));
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()), mock.Object);
+            var client = GetClient(CreateMockWith2Articles().Object, new UserStore(new List<User>()));
             var response = await client.GetAsync("/article");
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
@@ -42,9 +36,9 @@ namespace MiniBlogTest.ControllerTest
         }
 
         [Fact]
-        public async void Should_create_article_fail_when_ArticleStore_unavailable()
+        public async void Should_create_article_fail_when_ArticleRepository_unavailable()
         {
-            var client = GetClient(null, new UserStore(new List<User>()));
+            var client = GetClient(null, null);
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -59,11 +53,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_and_register_user_correct()
         {
-            var client = GetClient(new ArticleStore(new List<Article>
-            {
-                new Article(null, "Happy new year", "Happy 2021 new year"),
-                new Article(null, "Happy Halloween", "Halloween is coming"),
-            }), new UserStore(new List<User>()));
+            var client = GetClient(CreateMockWith2Articles().Object, new UserStore(new List<User>()));
 
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
@@ -92,6 +82,17 @@ namespace MiniBlogTest.ControllerTest
             Assert.True(users.Count == 1);
             Assert.Equal(userNameWhoWillAdd, users[0].Name);
             Assert.Equal("anonymous@unknow.com", users[0].Email);
+        }
+
+        private Mock<IArticleRepository> CreateMockWith2Articles()
+        {
+            var mock = new Mock<IArticleRepository>();
+            mock.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
+            {
+                new Article(null, "Happy new year", "Happy 2021 new year"),
+                new Article(null, "Happy Halloween", "Halloween is coming"),
+            }));
+            return mock;
         }
     }
 }
