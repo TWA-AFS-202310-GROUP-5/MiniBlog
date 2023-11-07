@@ -61,22 +61,17 @@ namespace MiniBlogTest.ControllerTest
         {
             var mockArticleRepository = new Mock<IArticleRepository>();
             var mockUserRepository = new Mock<IUserRepository>();
-/*            mockArticleRepository.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
-            {
-                new Article(null, "Happy new year", "Happy 2021 new year"),
-                new Article(null, "Happy Halloween", "Halloween is coming"),
-            }));
-*/
-
-
-
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
             Article article = new Article(userNameWhoWillAdd, articleTitle, articleContent);
-
+            mockArticleRepository.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
+            {
+                article
+            }));
             User user = new User("Tom");
             mockArticleRepository.Setup(repository => repository.CreateArticle(article)).Returns(Task.FromResult(article));
+
             mockUserRepository.Setup(repository => repository.GetUsersAsync())
                 .Returns(Task.FromResult(new List<User> { user }));
             mockUserRepository.Setup(repository => repository.CreateUserAsync(user))
@@ -95,13 +90,13 @@ namespace MiniBlogTest.ControllerTest
             // It fail, please help
             Assert.Equal(HttpStatusCode.Created, createArticleResponse.StatusCode);
 
-/*            var articleResponse = await client.GetAsync("/article");
+            var articleResponse = await client.GetAsync("/article");
             var body = await articleResponse.Content.ReadAsStringAsync();
             var articles = JsonConvert.DeserializeObject<List<Article>>(body);
-            Assert.Equal(3, articles.Count);
-            Assert.Equal(articleTitle, articles[2].Title);
-            Assert.Equal(articleContent, articles[2].Content);
-            Assert.Equal(userNameWhoWillAdd, articles[2].UserName);
+            Assert.Equal(1, articles.Count);
+            Assert.Equal(articleTitle, articles[0].Title);
+            Assert.Equal(articleContent, articles[0].Content);
+            Assert.Equal(userNameWhoWillAdd, articles[0].UserName);
 
             var userResponse = await client.GetAsync("/user");
             var usersJson = await userResponse.Content.ReadAsStringAsync();
@@ -109,7 +104,7 @@ namespace MiniBlogTest.ControllerTest
 
             Assert.True(users.Count == 1);
             Assert.Equal(userNameWhoWillAdd, users[0].Name);
-            Assert.Equal("anonymous@unknow.com", users[0].Email);*/
+            Assert.Equal("anonymous@unknow.com", users[0].Email);
         }
     }
 }

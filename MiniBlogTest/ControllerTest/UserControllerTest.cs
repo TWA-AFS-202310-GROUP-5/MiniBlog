@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using MiniBlog;
 using MiniBlog.Model;
+using MiniBlog.Repositories;
 using MiniBlog.Stores;
+using Moq;
 using Newtonsoft.Json;
 using Xunit;
 using Xunit.Sdk;
@@ -30,7 +32,11 @@ namespace MiniBlogTest.ControllerTest
         public async Task Should_get_all_users()
         {
             // given
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()));
+            var mockUserRepository = new Mock<IUserRepository>();
+            mockUserRepository.Setup(repository => repository.GetUsersAsync())
+                .Returns(Task.FromResult(new List<User>()));
+
+            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()), null, mockUserRepository.Object);
 
             // when
             var response = await client.GetAsync("/user");
@@ -46,6 +52,7 @@ namespace MiniBlogTest.ControllerTest
         public async Task Should_register_user_success()
         {
             // given
+
             var client = GetClient(new ArticleStore(), new UserStore(new List<User>()));
             var userName = "Tom";
             var email = "a@b.com";
