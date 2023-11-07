@@ -32,7 +32,7 @@ namespace MiniBlogTest.ControllerTest
         public async Task Should_get_all_users()
         {
             // given
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()));
+            var client = GetClient(new UserStore(new List<User>()));
 
             // when
             var response = await client.GetAsync("/user");
@@ -48,7 +48,7 @@ namespace MiniBlogTest.ControllerTest
         public async Task Should_register_user_success()
         {
             // given
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()));
+            var client = GetClient(new UserStore(new List<User>()));
             var userName = "Tom";
             var email = "a@b.com";
             var user = new User(userName, email);
@@ -73,7 +73,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_register_user_fail_when_UserStore_unavailable()
         {
-            var client = GetClient(new ArticleStore(), null);
+            var client = GetClient(null);
 
             var userName = "Tom";
             var email = "a@b.com";
@@ -88,7 +88,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_update_user_email_success_()
         {
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()));
+            var client = GetClient(new UserStore(new List<User>()));
 
             var userName = "Tom";
             var originalEmail = "a@b.com";
@@ -123,7 +123,7 @@ namespace MiniBlogTest.ControllerTest
                 new Article(null, "Happy Halloween", "Halloween is coming"),
             }));
 
-            var client = GetClient(new ArticleStore(), new UserStore(), mockArticleRepo.Object);
+            var client = GetClient(new UserStore(), mockArticleRepo.Object);
 
             var articlesResponse = await client.GetAsync("/article");
 

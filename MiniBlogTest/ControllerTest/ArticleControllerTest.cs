@@ -35,7 +35,7 @@ namespace MiniBlogTest.ControllerTest
                 new Article(null, "Happy new year", "Happy 2021 new year"),
                 new Article(null, "Happy Halloween", "Halloween is coming"),
             }));
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()), mock.Object);
+            var client = GetClient(new UserStore(new List<User>()), mock.Object);
             var response = await client.GetAsync("/article");
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
@@ -46,7 +46,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_fail_when_ArticleStore_unavailable()
         {
-            var client = GetClient(null, new UserStore(new List<User>()));
+            var client = GetClient(new UserStore(new List<User>()));
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -68,7 +68,7 @@ namespace MiniBlogTest.ControllerTest
 
             var httpContent = JsonConvert.SerializeObject(article);
             StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()), CreateMockWith2ArticlesAndCanCreate(article).Object);
+            var client = GetClient(new UserStore(new List<User>()), CreateMockWith2ArticlesAndCanCreate(article).Object);
             var createArticleResponse = await client.PostAsync("/article", content);
 
             // It fail, please help

@@ -32,7 +32,6 @@ namespace MiniBlog
             services.AddControllers();
             services.AddSwaggerGen();
 
-            services.AddSingleton<ArticleStore>(new ArticleStore());
             services.AddSingleton<UserStore>(new UserStore());
             services.AddScoped<ArticleService>();
 
