@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
@@ -88,8 +89,9 @@ namespace MiniBlogTest.ControllerTest
             Assert.Equal(userNameWhoWillAdd, articles[0].UserName);
 
             var userResponse = await client.GetAsync("/user");
-            var usersJson = await userResponse.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<List<User>>(usersJson);
+            List<User> users = await userResponse.Content.ReadFromJsonAsync<List<User>>();
+            //var usersJson = await userResponse.Content.ReadAsStringAsync();
+            //var users = JsonConvert.DeserializeObject<List<User>>(usersJson);
 
             Assert.True(users.Count == 1);
             Assert.Equal(userNameWhoWillAdd, users[0].Name);

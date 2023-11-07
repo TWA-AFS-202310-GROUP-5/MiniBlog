@@ -26,7 +26,7 @@ public class ArticleService
     {
         userStore.CreateUser(article.UserName);
 
-        return await articleRepository.GetArticleByTitle(article.Title);
+        return await articleRepository.CreateArticle(article);
     }
 
     public async Task<List<Article>> GetAll()
