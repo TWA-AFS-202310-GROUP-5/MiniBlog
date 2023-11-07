@@ -83,6 +83,39 @@ namespace MiniBlogTest.ControllerTest
             Assert.Equal("anonymous@unknow.com", users[0].Email);
         }
 
+        [Fact]
+        public async void Should_create_article_and_not_register_user_already_existed()
+        {
+            string userNameWhoWillAdd = "Tom";
+            string articleContent = "What a good day today!";
+            string articleTitle = "Good day";
+            Article article = new Article(userNameWhoWillAdd, articleTitle, articleContent);
+
+            var httpContent = JsonConvert.SerializeObject(article);
+            StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var client = GetClient(CreateMockWith2ArticlesAndCanCreate(article).Object, new UserStore(new List<User>() { new User() { Name = "Tom", Email = "notanonymous@know.com" } }));
+            var createArticleResponse = await client.PostAsync("/article", content);
+
+            // It fail, please help
+            Assert.Equal(HttpStatusCode.Created, createArticleResponse.StatusCode);
+
+            var articleResponse = await client.GetAsync("/article");
+            var body = await articleResponse.Content.ReadAsStringAsync();
+            var articles = JsonConvert.DeserializeObject<List<Article>>(body);
+            Assert.Equal(3, articles.Count);
+            Assert.Equal(articleTitle, articles[2].Title);
+            Assert.Equal(articleContent, articles[2].Content);
+            Assert.Equal(userNameWhoWillAdd, articles[2].UserName);
+
+            var userResponse = await client.GetAsync("/user");
+            var usersJson = await userResponse.Content.ReadAsStringAsync();
+            var users = JsonConvert.DeserializeObject<List<User>>(usersJson);
+
+            Assert.True(users.Count == 1);
+            Assert.Equal(userNameWhoWillAdd, users[0].Name);
+            Assert.Equal("notanonymous@know.com", users[0].Email);
+        }
+
         private Mock<IArticleRepository> CreateMockWith2ArticlesAndCanCreate(Article article)
         {
             var mock = new Mock<IArticleRepository>();
