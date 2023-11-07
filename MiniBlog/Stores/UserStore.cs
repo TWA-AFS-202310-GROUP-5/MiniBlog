@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
 using MiniBlog.Model;
 
 namespace MiniBlog.Stores
@@ -21,5 +22,17 @@ namespace MiniBlog.Stores
         }
 
         public List<User> Users { get; set; }
+
+        public void AddUser(string name)
+        {
+            if (Users.Find(_ => _.Name == name) is null)
+            {
+                Users.Add(new User
+                {
+                    Name = name,
+                    Email = "anonymous@unknow.com",
+                });
+            }
+        }
     }
 }

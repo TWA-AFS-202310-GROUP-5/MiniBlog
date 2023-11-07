@@ -17,9 +17,9 @@ public class ArticleServiceTest
         // given
 
         var newArticle = new Article("Jerry", "Let's code", "c#");
-        var articleService = new ArticleService(CreateMockWith2ArticlesAndCanCreate(newArticle).Object);
-        var articleCountBeforeAddNewOne = articleService.GetAll().Result.Count;
         var userStore = new UserStore();
+        var articleService = new ArticleService(userStore, CreateMockWith2ArticlesAndCanCreate(newArticle).Object);
+        var articleCountBeforeAddNewOne = articleService.GetAll().Result.Count;
 
         // when
         var addedArticle = articleService.CreateArticle(newArticle).Result;

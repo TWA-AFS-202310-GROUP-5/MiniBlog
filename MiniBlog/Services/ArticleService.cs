@@ -11,14 +11,17 @@ namespace MiniBlog.Services;
 public class ArticleService
 {
     private readonly IArticleRepository articleRepository = null!;
+    private readonly UserStore userStore = null!;
 
-    public ArticleService(IArticleRepository articleRepository)
+    public ArticleService(UserStore userStore, IArticleRepository articleRepository)
     {
         this.articleRepository = articleRepository;
+        this.userStore = userStore;
     }
 
     public async Task<Article?> CreateArticle(Article article)
     {
+        userStore.AddUser(article.UserName);
         return await articleRepository.CreateArticle(article);
     }
 

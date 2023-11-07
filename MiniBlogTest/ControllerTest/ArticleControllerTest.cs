@@ -53,8 +53,6 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_and_register_user_correct()
         {
-            var client = GetClient(CreateMockWithGet2Articles().Object, new UserStore(new List<User>()));
-
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -62,6 +60,7 @@ namespace MiniBlogTest.ControllerTest
 
             var httpContent = JsonConvert.SerializeObject(article);
             StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var client = GetClient(CreateMockWith2ArticlesAndCanCreate(article).Object, new UserStore(new List<User>()));
             var createArticleResponse = await client.PostAsync("/article", content);
 
             // It fail, please help
@@ -82,6 +81,24 @@ namespace MiniBlogTest.ControllerTest
             Assert.True(users.Count == 1);
             Assert.Equal(userNameWhoWillAdd, users[0].Name);
             Assert.Equal("anonymous@unknow.com", users[0].Email);
+        }
+
+        private Mock<IArticleRepository> CreateMockWith2ArticlesAndCanCreate(Article article)
+        {
+            var mock = new Mock<IArticleRepository>();
+            mock.Setup(repository => repository.CreateArticle(article)).Returns(Task.FromResult(new Article
+            {
+                UserName = article.UserName,
+                Title = article.Title,
+                Content = article.Content,
+            }));
+            mock.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
+            {
+                new Article(null, "Happy new year", "Happy 2021 new year"),
+                new Article(null, "Happy Halloween", "Halloween is coming"),
+                article,
+            }));
+            return mock;
         }
 
         private Mock<IArticleRepository> CreateMockWithGet2Articles()
