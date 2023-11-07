@@ -80,9 +80,8 @@ namespace MiniBlogTest.ControllerTest
             var userJson = await userResponse.Content.ReadAsStringAsync();
             var user = JsonConvert.DeserializeObject<User>(userJson);
 
-            Assert.True(users.Count == 1);
-            Assert.Equal(userNameWhoWillAdd, users[0].Name);
-            Assert.Equal("anonymous@unknow.com", users[0].Email);
+            Assert.Equal(userNameWhoWillAdd, user.Name);
+            Assert.Equal("anonymous@unknow.com", user.Email);
         }
     }
 }
