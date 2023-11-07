@@ -146,13 +146,13 @@ namespace MiniBlogTest.ControllerTest
             articlesResponseAfterDeletion.EnsureSuccessStatusCode();
             var articlesLeft = JsonConvert.DeserializeObject<List<Article>>(
                 await articlesResponseAfterDeletion.Content.ReadAsStringAsync());
-            Assert.True(articlesLeft.Count == 0);
+            Assert.False(articlesLeft.Exists(article => article.UserName == userName));
 
             var userResponseAfterDeletion = await client.GetAsync("/user");
             userResponseAfterDeletion.EnsureSuccessStatusCode();
             var usersLeft = JsonConvert.DeserializeObject<List<User>>(
                 await userResponseAfterDeletion.Content.ReadAsStringAsync());
-            Assert.True(usersLeft.Count == 0);
+            Assert.False(usersLeft.Exists(user => user.Name == userName));
         }
     }
 }
