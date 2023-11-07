@@ -38,4 +38,9 @@ public class ArticleService
     {
         return await articleRepository.GetArticleById(id.ToString());
     }
+
+    public async Task DeleteAllByUserName(string name)
+    {
+        await articleRepository.DeleteAllByUserName(name);
+    }
 }

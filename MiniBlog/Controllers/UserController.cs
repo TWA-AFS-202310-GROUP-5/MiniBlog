@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MiniBlog.Model;
+using MiniBlog.Services;
 using MiniBlog.Stores;
 
 namespace MiniBlog.Controllers
@@ -11,12 +13,12 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly ArticleStore articleStore = null!;
+        private readonly ArticleService articleService = null!;
         private readonly UserStore userStore = null!;
 
-        public UserController(ArticleStore articleStore, UserStore userStore)
+        public UserController(ArticleService articleService, UserStore userStore)
         {
-            this.articleStore = articleStore;
+            this.articleService = articleService;
             this.userStore = userStore;
         }
 
@@ -55,13 +57,13 @@ namespace MiniBlog.Controllers
         }
 
         [HttpDelete]
-        public User Delete(string name)
+        public async Task<User> DeleteAsync(string name)
         {
             var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == name);
             if (foundUser != null)
             {
                 userStore.Users.Remove(foundUser);
-                articleStore.Articles.RemoveAll(a => a.UserName == foundUser.Name);
+                await articleService.DeleteAllByUserName(foundUser.Name);
             }
 
             return foundUser;

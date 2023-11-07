@@ -31,5 +31,10 @@ namespace MiniBlog.Repositories
         {
             return await articleCollection.Find(x => x.Id == id).FirstAsync();
         }
+
+        public async Task DeleteAllByUserName(string name)
+        {
+            await articleCollection.DeleteManyAsync(x => x.UserName == name);
+        }
     }
 }
