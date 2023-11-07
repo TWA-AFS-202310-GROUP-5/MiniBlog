@@ -56,12 +56,13 @@ namespace MiniBlog.Controllers
         }
 
         [HttpDelete]
-        public User Delete(string name)
+        public async Task<User> Delete(string name)
         {
-            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == name);
-            if (foundUser != null)
+            var exit = await userService.IsUserAlreadyExit(name);
+            var foundUser = await userService.GetUserByName(name);
+            if (exit)
             {
-                userStore.Users.Remove(foundUser);
+                userService.DeleteOne(name);
                 articleStore.Articles.RemoveAll(a => a.UserName == foundUser.Name);
             }
 
@@ -69,9 +70,9 @@ namespace MiniBlog.Controllers
         }
 
         [HttpGet("{name}")]
-        public User GetByName(string name)
+        public async Task<User> GetByName(string name)
         {
-            return userStore.Users.FirstOrDefault(_ => _.Name.ToLower() == name.ToLower());
+            return await userService.GetUserByName(name);
         }
     }
 }

@@ -61,4 +61,9 @@ public class ArticleService
     {
         return articleStore.Articles.FirstOrDefault(article => article.Id == id.ToString());
     }
+    
+    public void DeleteMany(string userName)
+    {
+        articleRepository.DeleteMany(userName);
+    }
 }

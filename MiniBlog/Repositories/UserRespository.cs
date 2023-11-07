@@ -34,5 +34,17 @@ namespace MiniBlog.Repositories
             var update = Builders<User>.Update.Set("Email", user.Email);
             userCollection.UpdateOne(filter, update);
         }
+
+        public void DeleteOne(string name)
+        {
+            var filter = Builders<User>.Filter.Eq("Name", name);
+            userCollection.DeleteOne(filter);
+        }
+
+        public async Task<User> GetUserByName(string name)
+        {
+            var filter = Builders<User>.Filter.Eq("Name", name);
+            return await userCollection.Find(filter).FirstAsync();
+        }
     }
 }

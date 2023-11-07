@@ -10,5 +10,8 @@ namespace MiniBlog.Repositories
         public Task<User> CreateUserAsync(User user);
 
         void UpdateOne(User user);
+
+        public void DeleteOne(string name);
+        Task<User> GetUserByName(string name);
     }
 }

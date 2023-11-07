@@ -39,5 +39,17 @@ namespace MiniBlog.Services
             userRepository.UpdateOne(user);
             return user;
         }
+
+        public void DeleteOne(string name)
+        {
+            userRepository.DeleteOne(name);
+
+        }
+
+        public async Task<User> GetUserByName(string name)
+        {
+            
+            return await userRepository.GetUserByName(name);
+        }
     }
 }
