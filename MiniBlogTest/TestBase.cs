@@ -18,17 +18,13 @@ namespace MiniBlogTest
 
         protected CustomWebApplicationFactory<Startup> Factory { get; }
 
-        protected HttpClient GetClient(ArticleStore articleStore = null, UserStore userStore = null, IArticleRepository articleRepository = null)
+        protected HttpClient GetClient(IArticleRepository articleRepository = null, UserStore userStore = null)
         {
             return Factory.WithWebHostBuilder(builder =>
             {
                 builder.ConfigureServices(
                     services =>
                     {
-                        services.AddSingleton<ArticleStore>(provider =>
-                        {
-                            return articleStore;
-                        });
                         services.AddSingleton<UserStore>(provider =>
                         {
                             return userStore;
