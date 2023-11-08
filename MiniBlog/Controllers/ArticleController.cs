@@ -22,9 +22,15 @@ namespace MiniBlog.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Article>> List()
+        public async Task<List<Article>> Get()
         {
             return await articleService.GetAll();
+        }
+
+        [HttpGet("{id}")]
+        public async Task<Article?> GetById(string id)
+        {
+            return await articleService.GetById(id);
         }
 
         [HttpPost]
@@ -33,12 +39,6 @@ namespace MiniBlog.Controllers
             var addedArticle = await articleService.CreateArticle(article);
 
             return CreatedAtAction(nameof(GetById), new { id = article.Id }, addedArticle);
-        }
-
-        [HttpGet("{id}")]
-        public Article? GetById(Guid id)
-        {
-            return articleService.GetById(id);
         }
     }
 }
