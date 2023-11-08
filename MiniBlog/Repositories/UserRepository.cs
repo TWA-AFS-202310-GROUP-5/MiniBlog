@@ -1,5 +1,6 @@
 ﻿using MiniBlog.Model;
 using MongoDB.Driver;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MiniBlog.Repositories
@@ -13,6 +14,9 @@ namespace MiniBlog.Repositories
             this.userCollection = mongoClient.GetDatabase("MiniBlog").GetCollection<User>(User.CollectionName);
         }
 
+        public async Task<List<User>> GetUsers() =>
+            await userCollection.Find(_ => true).ToListAsync();
+
         public async Task<User> GetByName(string name)
         {
             return await userCollection.Find(_ => _.Name == name).FirstOrDefaultAsync();
@@ -21,7 +25,7 @@ namespace MiniBlog.Repositories
         public async Task<User> Create(User user)
         {
             await userCollection.InsertOneAsync(user);
-            return await GetByName(user.Name);
+            return await userCollection.Find(a => a.Name == user.Name).FirstAsync();
         }
     }
 }

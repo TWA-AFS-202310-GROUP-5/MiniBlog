@@ -39,6 +39,7 @@ namespace MiniBlogTest
                         {
                             return articleRepository;
                         });
+                        services.AddScoped<UserService>();
                         services.AddScoped<IUserRepository>(provider =>
                         {
                             return userRepository;
