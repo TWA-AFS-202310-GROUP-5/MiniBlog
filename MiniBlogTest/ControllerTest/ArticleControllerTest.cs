@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Net.Mime;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +35,7 @@ namespace MiniBlogTest.ControllerTest
                 new Article(null, "Happy new year", "Happy 2021 new year"),
                 new Article(null, "Happy Halloween", "Halloween is coming"),
             }));
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()), mock.Object);
+            var client = GetClient(new UserStore(new List<User>()), mock.Object);
             var response = await client.GetAsync("/article");
             response.EnsureSuccessStatusCode();
             var body = await response.Content.ReadAsStringAsync();
@@ -44,7 +46,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_fail_when_ArticleStore_unavailable()
         {
-            var client = GetClient(null, new UserStore(new List<User>()));
+            var client = GetClient(new UserStore(new List<User>()));
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -59,12 +61,6 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async void Should_create_article_and_register_user_correct()
         {
-            var client = GetClient(new ArticleStore(new List<Article>
-            {
-                new Article(null, "Happy new year", "Happy 2021 new year"),
-                new Article(null, "Happy Halloween", "Halloween is coming"),
-            }), new UserStore(new List<User>()));
-
             string userNameWhoWillAdd = "Tom";
             string articleContent = "What a good day today!";
             string articleTitle = "Good day";
@@ -72,6 +68,7 @@ namespace MiniBlogTest.ControllerTest
 
             var httpContent = JsonConvert.SerializeObject(article);
             StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
+            var client = GetClient(new UserStore(new List<User>()), CreateMockWith2ArticlesAndCanCreate(article).Object);
             var createArticleResponse = await client.PostAsync("/article", content);
 
             // It fail, please help
@@ -85,13 +82,25 @@ namespace MiniBlogTest.ControllerTest
             Assert.Equal(articleContent, articles[2].Content);
             Assert.Equal(userNameWhoWillAdd, articles[2].UserName);
 
-            var userResponse = await client.GetAsync("/user");
-            var usersJson = await userResponse.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<List<User>>(usersJson);
+            var userResponse = await client.GetAsync("/user/" + articles[2].UserName);
+            var userJson = await userResponse.Content.ReadAsStringAsync();
+            var user = JsonConvert.DeserializeObject<User>(userJson);
 
-            Assert.True(users.Count == 1);
-            Assert.Equal(userNameWhoWillAdd, users[0].Name);
-            Assert.Equal("anonymous@unknow.com", users[0].Email);
+            Assert.Equal(userNameWhoWillAdd, user.Name);
+            Assert.Equal("anonymous@unknow.com", user.Email);
+        }
+
+        private Mock<IArticleRepository> CreateMockWith2ArticlesAndCanCreate(Article article)
+        {
+            var mock = new Mock<IArticleRepository>();
+            mock.Setup(repository => repository.CreateArticle(article)).Returns(Task.FromResult(article));
+            mock.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
+            {
+                new Article(null, "Happy new year", "Happy 2021 new year"),
+                new Article(null, "Happy Halloween", "Halloween is coming"),
+                article,
+            }));
+            return mock;
         }
     }
 }

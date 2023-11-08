@@ -11,7 +11,7 @@ namespace MiniBlog.Repositories
     {
         private readonly IMongoCollection<Article> articleCollection;
 
-        public ArticleRepository(IMongoClient mongoClient)
+        public ArticleRepository(IMongoClient mongoClient) 
         {
             var mongoDatabase = mongoClient.GetDatabase("MiniBlog");
 
@@ -23,8 +23,19 @@ namespace MiniBlog.Repositories
 
         public async Task<Article> CreateArticle(Article article)
         {
+            article.Id = null;
             await articleCollection.InsertOneAsync(article);
             return await articleCollection.Find(a => a.Title == article.Title).FirstAsync();
+        }
+
+        public async Task<Article> GetArticleById(string id)
+        {
+            return await articleCollection.Find(x => x.Id == id).FirstAsync();
+        }
+
+        public async Task DeleteAllByUserName(string name)
+        {
+            await articleCollection.DeleteManyAsync(x => x.UserName == name);
         }
     }
 }

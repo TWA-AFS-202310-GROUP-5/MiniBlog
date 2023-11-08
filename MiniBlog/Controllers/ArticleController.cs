@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MiniBlog.Model;
@@ -11,7 +12,7 @@ using MiniBlog.Stores;
 namespace MiniBlog.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/article")]
     public class ArticleController : ControllerBase
     {
         private readonly ArticleService articleService = null!;
@@ -28,17 +29,17 @@ namespace MiniBlog.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Article article)
+        public async Task<IActionResult> Create([FromBody]Article article)
         {
             var addedArticle = await articleService.CreateArticle(article);
 
-            return CreatedAtAction(nameof(GetById), new { id = article.Id }, addedArticle);
+            return CreatedAtAction(nameof(Create), new { id = article.Id }, addedArticle);
         }
 
         [HttpGet("{id}")]
-        public Article? GetById(Guid id)
+        public async Task<Article?> GetByIdAsync(string id)
         {
-            return articleService.GetById(id);
+            return await articleService.GetByIdAsync(id);
         }
     }
 }

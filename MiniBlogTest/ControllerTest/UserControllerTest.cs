@@ -10,7 +10,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using MiniBlog;
 using MiniBlog.Model;
+using MiniBlog.Repositories;
 using MiniBlog.Stores;
+using Moq;
 using Newtonsoft.Json;
 using Xunit;
 using Xunit.Sdk;
@@ -30,7 +32,7 @@ namespace MiniBlogTest.ControllerTest
         public async Task Should_get_all_users()
         {
             // given
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()));
+            var client = GetClient(new UserStore(new List<User>()));
 
             // when
             var response = await client.GetAsync("/user");
@@ -46,7 +48,7 @@ namespace MiniBlogTest.ControllerTest
         public async Task Should_register_user_success()
         {
             // given
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()));
+            var client = GetClient(new UserStore(new List<User>()));
             var userName = "Tom";
             var email = "a@b.com";
             var user = new User(userName, email);
@@ -71,7 +73,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_register_user_fail_when_UserStore_unavailable()
         {
-            var client = GetClient(new ArticleStore(), null);
+            var client = GetClient(null);
 
             var userName = "Tom";
             var email = "a@b.com";
@@ -86,7 +88,7 @@ namespace MiniBlogTest.ControllerTest
         [Fact]
         public async Task Should_update_user_email_success_()
         {
-            var client = GetClient(new ArticleStore(), new UserStore(new List<User>()));
+            var client = GetClient(new UserStore(new List<User>()));
 
             var userName = "Tom";
             var originalEmail = "a@b.com";
@@ -114,18 +116,14 @@ namespace MiniBlogTest.ControllerTest
         {
             // given
             var userName = "Tom";
-            var client = GetClient(
-                new ArticleStore(
-                    new List<Article>
-                    {
-                        new Article(userName, string.Empty, string.Empty),
-                        new Article(userName, string.Empty, string.Empty),
-                    }),
-                new UserStore(
-                    new List<User>
-                    {
-                        new User(userName, string.Empty),
-                    }));
+            var mockArticleRepo = new Mock<IArticleRepository>();
+            mockArticleRepo.Setup(repository => repository.GetArticles()).Returns(Task.FromResult(new List<Article>
+            {
+                new Article(null, "Happy new year", "Happy 2021 new year"),
+                new Article(null, "Happy Halloween", "Halloween is coming"),
+            }));
+
+            var client = GetClient(new UserStore(), mockArticleRepo.Object);
 
             var articlesResponse = await client.GetAsync("/article");
 
@@ -138,7 +136,7 @@ namespace MiniBlogTest.ControllerTest
             userResponse.EnsureSuccessStatusCode();
             var users = JsonConvert.DeserializeObject<List<User>>(
                 await userResponse.Content.ReadAsStringAsync());
-            Assert.True(users.Count == 1);
+            Assert.True(users.Count == 2);
 
             // when
             await client.DeleteAsync($"/user?name={userName}");
@@ -148,13 +146,13 @@ namespace MiniBlogTest.ControllerTest
             articlesResponseAfterDeletion.EnsureSuccessStatusCode();
             var articlesLeft = JsonConvert.DeserializeObject<List<Article>>(
                 await articlesResponseAfterDeletion.Content.ReadAsStringAsync());
-            Assert.True(articlesLeft.Count == 0);
+            Assert.False(articlesLeft.Exists(article => article.UserName == userName));
 
             var userResponseAfterDeletion = await client.GetAsync("/user");
             userResponseAfterDeletion.EnsureSuccessStatusCode();
             var usersLeft = JsonConvert.DeserializeObject<List<User>>(
                 await userResponseAfterDeletion.Content.ReadAsStringAsync());
-            Assert.True(usersLeft.Count == 0);
+            Assert.False(usersLeft.Exists(user => user.Name == userName));
         }
     }
 }
