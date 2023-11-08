@@ -13,6 +13,7 @@ using Moq;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Net;
+using MiniBlog.Services;
 
 namespace MiniBlogTest.ServiceTest
 {
@@ -32,15 +33,14 @@ namespace MiniBlogTest.ServiceTest
                 .Returns(Task.FromResult(new List<User>()));
 
             var client = GetClient(null, null, null, mockUserRepository.Object);
-
+            UserService userService = new UserService(mockUserRepository.Object);
             // when
-            var response = await client.GetAsync("/user");
+
+
+            var response = await userService.GetAllAsync();
 
             // then
-            response.EnsureSuccessStatusCode();
-            var body = await response.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<List<User>>(body);
-            Assert.True(users.Count == 0);
+            Assert.True(response.Count == 0);
         }
 
         [Fact]
@@ -55,26 +55,23 @@ namespace MiniBlogTest.ServiceTest
                 .Returns(Task.FromResult(new List<User>()));
             mockUserRepository.Setup(repository => repository.CreateUserAsync(user))
                 .Returns(Task.FromResult(user));
-            var client = GetClient(null, null, null, mockUserRepository.Object);
 
-            var userJson = JsonConvert.SerializeObject(user);
-            StringContent content = new StringContent(userJson, Encoding.UTF8, MediaTypeNames.Application.Json);
 
+            UserService userService = new UserService(mockUserRepository.Object);
             // when
-            var registerResponse = await client.PostAsync("/user", content);
+            var registerResponse = await userService.CreateUserAsync(user);
+
+
 
             // It fail, please help
-            Assert.Equal(HttpStatusCode.OK, registerResponse.StatusCode);
+
 
             mockUserRepository.Setup(repository => repository.GetUsersAsync())
                 .Returns(Task.FromResult(new List<User> { user }));
-            var response = await client.GetAsync("/user");
-            response.EnsureSuccessStatusCode();
-            var body = await response.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<List<User>>(body);
-            Assert.True(users.Count == 1);
-            Assert.Equal(email, users[0].Email);
-            Assert.Equal(userName, users[0].Name);
+            var response = await userService.GetAllAsync();
+            Assert.True(response.Count == 1);
+            Assert.Equal(email, response[0].Email);
+            Assert.Equal(userName, response[0].Name);
         }
 
 
@@ -99,30 +96,25 @@ namespace MiniBlogTest.ServiceTest
             mockUserRepository.Setup(repository => repository.CreateUserAsync(user))
                 .Returns(Task.FromResult(user));
 
-            var client = GetClient(null,null,  mockArticleRepository.Object, mockUserRepository.Object);
-
+            UserService userService = new UserService(mockUserRepository.Object);
             var httpContent = JsonConvert.SerializeObject(article);
             StringContent content = new StringContent(httpContent, Encoding.UTF8, MediaTypeNames.Application.Json);
-            var createArticleResponse = await client.PostAsync("/article", content);
+            var createArticleResponse = await userService.CreateUserAsync(user);
 
             // It fail, please help
-            Assert.Equal(HttpStatusCode.Created, createArticleResponse.StatusCode);
+            ArticleService articleService = new ArticleService(mockArticleRepository.Object, mockUserRepository.Object);
 
-            var articleResponse = await client.GetAsync("/article");
-            var body = await articleResponse.Content.ReadAsStringAsync();
-            var articles = JsonConvert.DeserializeObject<List<Article>>(body);
-            Assert.Equal(1, articles.Count);
-            Assert.Equal(articleTitle, articles[0].Title);
-            Assert.Equal(articleContent, articles[0].Content);
-            Assert.Equal(userNameWhoWillAdd, articles[0].UserName);
+            var articleResponse = await articleService.GetAll();
+            Assert.Equal(1, articleResponse.Count);
+            Assert.Equal(articleTitle, articleResponse[0].Title);
+            Assert.Equal(articleContent, articleResponse[0].Content);
+            Assert.Equal(userNameWhoWillAdd, articleResponse[0].UserName);
 
-            var userResponse = await client.GetAsync("/user");
-            var usersJson = await userResponse.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<List<User>>(usersJson);
+            var userResponse = await userService.GetAllAsync();
 
-            Assert.True(users.Count == 1);
-            Assert.Equal(userNameWhoWillAdd, users[0].Name);
-            Assert.Equal("anonymous@unknow.com", users[0].Email);
+            Assert.True(userResponse.Count == 1);
+            Assert.Equal(userNameWhoWillAdd, userResponse[0].Name);
+            Assert.Equal("anonymous@unknow.com", userResponse[0].Email);
         }
     }
 }

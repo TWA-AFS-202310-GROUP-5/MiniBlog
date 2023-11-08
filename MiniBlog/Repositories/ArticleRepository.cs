@@ -32,5 +32,11 @@ namespace MiniBlog.Repositories
             var filter = Builders<Article>.Filter.Eq("userName", userName);
             articleCollection.DeleteMany(filter);
         }
+
+        public async Task<Article> GeTById(Guid id)
+        {
+            var filter = Builders<Article>.Filter.Eq("_id", id);
+            return await articleCollection.Find(filter).FirstAsync();
+        }
     }
 }
