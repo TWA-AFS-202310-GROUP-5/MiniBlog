@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MiniBlog.Model;
+using MiniBlog.Services;
 using MiniBlog.Stores;
 
 namespace MiniBlog.Controllers
@@ -11,61 +13,61 @@ namespace MiniBlog.Controllers
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly ArticleStore articleStore = null!;
-        private readonly UserStore userStore = null!;
+        private readonly UserService userService = null!;
 
-        public UserController(ArticleStore articleStore, UserStore userStore)
+        public UserController(UserService userService)
         {
-            this.articleStore = articleStore;
-            this.userStore = userStore;
+            this.userService = userService;
         }
 
         [HttpPost]
-        public IActionResult Register(User user)
+        public async Task<User> Register(User user)
         {
-            if (!userStore.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
+            User result = null;
+            var exit = await userService.IsUserAlreadyExit(user.Name);
+            if (!exit)
             {
-                userStore.Users.Add(user);
+                result = await userService.CreateUserAsync(user);
             }
 
-            return CreatedAtAction(nameof(GetByName), new { name = user.Name }, GetByName(user.Name));
+            return result;
         }
 
         [HttpGet]
-        public List<User> GetAll()
+        public async Task<List<User>> GetAll()
         {
-            return userStore.Users;
+            return await userService.GetAllAsync();
         }
 
         [HttpPut]
         public User Update(User user)
         {
-            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == user.Name);
-            if (foundUser != null)
+            if (user != null)
             {
-                foundUser.Email = user.Email;
+                userService.Update(user);
+                return user;
             }
 
-            return foundUser;
+            return null;
         }
 
         [HttpDelete]
-        public User Delete(string name)
+        public async Task<User> Delete(string name)
         {
-            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == name);
-            if (foundUser != null)
+            var exit = await userService.IsUserAlreadyExit(name);
+            var foundUser = await userService.GetUserByName(name);
+            if (exit)
             {
-                userStore.Users.Remove(foundUser);
-                articleStore.Articles.RemoveAll(a => a.UserName == foundUser.Name);
+                userService.DeleteOne(name);
             }
 
             return foundUser;
         }
 
         [HttpGet("{name}")]
-        public User GetByName(string name)
+        public async Task<User> GetByName(string name)
         {
-            return userStore.Users.FirstOrDefault(_ => _.Name.ToLower() == name.ToLower());
+            return await userService.GetUserByName(name);
         }
     }
 }

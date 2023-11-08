@@ -26,5 +26,17 @@ namespace MiniBlog.Repositories
             await articleCollection.InsertOneAsync(article);
             return await articleCollection.Find(a => a.Title == article.Title).FirstAsync();
         }
+
+        public void DeleteMany(string userName)
+        {
+            var filter = Builders<Article>.Filter.Eq("userName", userName);
+            articleCollection.DeleteMany(filter);
+        }
+
+        public async Task<Article> GeTById(Guid id)
+        {
+            var filter = Builders<Article>.Filter.Eq("_id", id);
+            return await articleCollection.Find(filter).FirstAsync();
+        }
     }
 }
