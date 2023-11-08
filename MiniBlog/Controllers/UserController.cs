@@ -36,40 +36,27 @@ namespace MiniBlog.Controllers
         }
 
         [HttpGet]
-        public List<User> GetAll()
+        public async Task<List<User>> GetAllAsync()
         {
-            return userStore.Users;
+            return await userService.GetAllUsers();
         }
 
         [HttpPut]
-        public User Update(User user)
+        public async Task<User> Update(User user)
         {
-            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == user.Name);
-            if (foundUser != null)
-            {
-                foundUser.Email = user.Email;
-            }
-
-            return foundUser;
+            return await userService.UpdateUser(user);
         }
 
         [HttpDelete]
-        public async Task<User> DeleteAsync(string name)
+        public async Task DeleteAsync(string name)
         {
-            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == name);
-            if (foundUser != null)
-            {
-                userStore.Users.Remove(foundUser);
-                await articleService.DeleteAllByUserName(foundUser.Name);
-            }
-
-            return foundUser;
+            await userService.DeleteUserByName(name);
         }
 
         [HttpGet("{name}")]
-        public User GetByName(string name)
+        public async Task<User> GetByName(string name)
         {
-            return userStore.Users.FirstOrDefault(_ => _.Name.ToLower() == name.ToLower());
+            return await userService.GetUserByName(name);
         }
     }
 }

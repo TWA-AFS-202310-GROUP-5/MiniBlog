@@ -1,5 +1,7 @@
 ﻿using MiniBlog.Model;
 using MiniBlog.Repositories;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MiniBlog.Services
@@ -18,6 +20,26 @@ namespace MiniBlog.Services
         public async Task<User> CreateUser(User user)
         {
             return await userRepository.CreateUser(user);
+        }
+
+        public async Task<List<User>> GetAllUsers()
+        {
+            return await userRepository.GetUsers();
+        }
+
+        public async Task DeleteUserByName(string name)
+        {
+            await userRepository.DeleteUserByName(name);
+        }
+
+        public async Task<User> GetUserByName(string name)
+        {
+            return await userRepository.GetUserByName(name);
+        }
+
+        public async Task<User> UpdateUser(User user)
+        {
+            return await userRepository.UpdateUser(user);
         }
     }
 }

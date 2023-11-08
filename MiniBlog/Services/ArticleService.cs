@@ -24,10 +24,16 @@ public class ArticleService
 
     public async Task<Article> CreateArticle(Article article)
     {
-        await userRepository.CreateUser(new User
+        var existUser = await userRepository.GetUserByName(article.UserName);
+        if (existUser == null)
         {
-            Name = article.UserName
-        });
+            var newUser = new User
+            {
+                Name = article.UserName,
+            };
+
+            var result = await userRepository.CreateUser(newUser);
+        }
         
         var createdArticle = await articleRepository.CreateArticle(article);
         return createdArticle;

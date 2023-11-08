@@ -1,7 +1,11 @@
 ﻿using MiniBlog.Model;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using SharpCompress.Common;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace MiniBlog.Repositories
 {
@@ -16,13 +20,8 @@ namespace MiniBlog.Repositories
 
         public async Task<User> CreateUser(User user)
         {
-            var existUser = await userCollecotion.FindAsync(u => u.Name == user.Name);
-            if (existUser == null)
-            {
-                await userCollecotion.InsertOneAsync(user);
-            }
-            
-            return await userCollecotion.Find(a => a.Name == user.Name).FirstAsync();
+            await userCollecotion.InsertOneAsync(user);
+            return await userCollecotion.Find(a => a.Name == user.Name).FirstOrDefaultAsync();
         }
 
         public Task DeleteUserByName(string name)
@@ -30,14 +29,20 @@ namespace MiniBlog.Repositories
             throw new System.NotImplementedException();
         }
 
-        public Task<User> GetUserByName(string name)
+        public async Task<User> GetUserByName(string name)
         {
-            throw new System.NotImplementedException();
+            return await userCollecotion.Find(a => a.Name == name).FirstOrDefaultAsync();
         }
 
-        public Task<List<User>> GetUsers()
+        public async Task<List<User>> GetUsers()
         {
-            throw new System.NotImplementedException();
+            return await userCollecotion.Find(a => a.Name != null).ToListAsync();
+        }
+
+        public async Task<User> UpdateUser(User user)
+        {
+            var update = Builders<User>.Update.Set(e => e.Name, user.Name);
+            return await userCollecotion.FindOneAndUpdateAsync(a => a.Name == user.Name, update);
         }
     }
 }

@@ -10,5 +10,6 @@ namespace MiniBlog.Repositories
         public Task<User> CreateUser(User user);
         public Task<User> GetUserByName(string name);
         public Task DeleteUserByName(string name);
+        Task<User> UpdateUser(User user);
     }
 }
