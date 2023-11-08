@@ -14,19 +14,25 @@ namespace MiniBlog.Services;
 public class ArticleService
 {
     private readonly IArticleRepository articleRepository = null!;
-    private readonly UserStore userStore = null!;
+    private readonly IUserRepository userRepository = null!;
 
-    public ArticleService(IArticleRepository articleRepository, UserStore userStore)
+    public ArticleService(IArticleRepository articleRepository, IUserRepository userRepository)
     {
         this.articleRepository = articleRepository;
-        this.userStore = userStore;
+        this.userRepository = userRepository;
     }
 
     public async Task<Article> CreateArticle(Article article)
     {
-        if (!userStore.Users.Exists(user => user.Name == article.UserName))
+        var existUser = await userRepository.GetUserByName(article.UserName);
+        if (existUser == null)
         {
-            this.userStore.Users.Add(new User(name: article.UserName));
+            var newUser = new User
+            {
+                Name = article.UserName,
+            };
+
+            var result = await userRepository.CreateUser(newUser);
         }
         
         var createdArticle = await articleRepository.CreateArticle(article);

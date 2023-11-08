@@ -1,4 +1,5 @@
-﻿using MiniBlog.Model;
+﻿using Microsoft.AspNetCore.Mvc;
+using MiniBlog.Model;
 using MiniBlog.Repositories;
 using MiniBlog.Services;
 using MiniBlog.Stores;
@@ -19,17 +20,22 @@ public class ArticleServiceTest
     {
         // given
         var newArticle = new Article("Jerry", "Let's code", "c#");
-        var userStore = new UserStore();
-        var mock = new Mock<IArticleRepository>();
-        mock.Setup(repository => repository.CreateArticle(newArticle)).Returns(Task.FromResult(newArticle));
-        var articleService = new ArticleService(mock.Object, userStore);
+        var newUser = new User
+        {
+            Name = newArticle.UserName
+        };
+        var articleRepoMock = MockGenerator.MockArticleRepositoryCreateArticle(newArticle);
+        var userRepoMock = MockGenerator.MockUserRepositoryGetTwoUsers();
+        userRepoMock.Setup(repository => repository.CreateUser(newUser)).Returns(Task.FromResult(newUser));
+        userRepoMock.Setup(repository => repository.GetUserByName(newUser.Name)).Returns(Task.FromResult((User)null));
+        var articleService = new ArticleService(articleRepoMock.Object, userRepoMock.Object);
 
         // when
         var addedArticle = articleService.CreateArticle(newArticle);
 
         // then
-        mock.Verify(repo => repo.CreateArticle(newArticle), Times.Once());
-        Assert.Equal(3, userStore.Users.Count);
+        articleRepoMock.Verify(repo => repo.CreateArticle(newArticle), Times.Once());
+        userRepoMock.Verify(repo => repo.CreateUser(newUser), Times.Once());
     }
 
     [Fact]
@@ -37,16 +43,21 @@ public class ArticleServiceTest
     {
         // given
         var newArticle = new Article("Andrew", "Let's code", "c#");
-        var userStore = new UserStore();
-        var mock = new Mock<IArticleRepository>();
-        mock.Setup(repository => repository.CreateArticle(newArticle)).Returns(Task.FromResult(newArticle));
-        var articleService = new ArticleService(mock.Object, userStore);
+        var newUser = new User
+        {
+            Name = newArticle.UserName
+        };
+        var articleRepoMock = MockGenerator.MockArticleRepositoryCreateArticle(newArticle);
+        var userRepoMock = MockGenerator.MockUserRepositoryGetTwoUsers();
+        userRepoMock.Setup(repository => repository.CreateUser(newUser)).Returns(Task.FromResult(newUser));
+        userRepoMock.Setup(repository => repository.GetUserByName(newUser.Name)).Returns(Task.FromResult((User)null));
+        var articleService = new ArticleService(articleRepoMock.Object, userRepoMock.Object);
 
         // when
         var addedArticle = articleService.CreateArticle(newArticle);
 
         // then
-        mock.Verify(repo => repo.CreateArticle(newArticle), Times.Once());
-        Assert.Equal(2, userStore.Users.Count);
+        articleRepoMock.Verify(repo => repo.CreateArticle(newArticle), Times.Once());
+        userRepoMock.Verify(repo => repo.CreateUser(newUser), Times.Never);
     }
 }

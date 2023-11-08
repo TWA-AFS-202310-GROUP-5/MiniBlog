@@ -14,65 +14,49 @@ namespace MiniBlog.Controllers
     public class UserController : ControllerBase
     {
         private readonly ArticleService articleService = null!;
-        private readonly UserStore userStore = null!;
+        private readonly UserService userService = null!;
 
-        public UserController(ArticleService articleService, UserStore userStore)
+        public UserController(ArticleService articleService, UserService userService)
         {
             this.articleService = articleService;
-            this.userStore = userStore;
+            this.userService = userService;
         }
 
         [HttpPost]
-        public IActionResult Register(User user)
+        public async Task<IActionResult> RegisterAsync(User user)
         {
-            if (this.userStore == null)
+            if (this.userService == null)
             {
                 return StatusCode(500);
             }
 
-            if (!userStore.Users.Exists(_ => user.Name.ToLower() == _.Name.ToLower()))
-            {
-                userStore.Users.Add(user);
-            }
+            _ = await userService.CreateUser(user);
 
             return CreatedAtAction(nameof(GetByName), new { name = user.Name }, GetByName(user.Name));
         }
 
         [HttpGet]
-        public List<User> GetAll()
+        public async Task<List<User>> GetAllAsync()
         {
-            return userStore.Users;
+            return await userService.GetAllUsers();
         }
 
         [HttpPut]
-        public User Update(User user)
+        public async Task<User> Update(User user)
         {
-            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == user.Name);
-            if (foundUser != null)
-            {
-                foundUser.Email = user.Email;
-            }
-
-            return foundUser;
+            return await userService.UpdateUser(user);
         }
 
         [HttpDelete]
-        public async Task<User> DeleteAsync(string name)
+        public async Task DeleteAsync(string name)
         {
-            var foundUser = userStore.Users.FirstOrDefault(_ => _.Name == name);
-            if (foundUser != null)
-            {
-                userStore.Users.Remove(foundUser);
-                await articleService.DeleteAllByUserName(foundUser.Name);
-            }
-
-            return foundUser;
+            await userService.DeleteUserByName(name);
         }
 
         [HttpGet("{name}")]
-        public User GetByName(string name)
+        public async Task<User> GetByName(string name)
         {
-            return userStore.Users.FirstOrDefault(_ => _.Name.ToLower() == name.ToLower());
+            return await userService.GetUserByName(name);
         }
     }
 }
